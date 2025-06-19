@@ -15,17 +15,18 @@
     @forelse ($posts as $post)
       <div class="col">
         <div class="card h-100 text-bg-transparent">
-          <div class="card-header bg-transparent">
+          <div class="card-header theme-aware" style="text-decoration: none;">
             <a href="{{ route('bloggers.edit', $post->id) }}" class="btn btn-primary me-2">Edit Postingan</a>  
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalHapus{{ $post->id }}">
               Hapus
             </button>
           </div>
-          <a href="{{ route('bloggers.show', $post->id) }}" class="card-body text-primary text-decoration-none">
+          <a href="{{ route('bloggers.show', $post->id) }}" class="card-body theme-aware text-decoration-none" style="text-decoration: none;">
             <h5 class="card-title">{{ $post->judul }}</h5>
             <p class="card-text">{{ Str::limit($post->isi_konten, 150) }}</p>
+            <div class="card-footer bg-transparent">{{ $post->updated_at }}</div>
           </a>
-          <div class="card-footer bg-transparent">{{ $post->updated_at }}</div>
+          
         </div>
       </div>
 
@@ -60,3 +61,17 @@
     @endforelse
 </div>
 @endsection
+
+@push('style')
+<style>
+  [data-bs-theme="light"] .card-body.theme-aware {
+    background-color: #e5ddd5; /* warna terang */
+    color: #212529; /* teks gelap */
+}
+
+[data-bs-theme="dark"] .card-body.theme-aware {
+    background-color: #2b2b2b; /* warna gelap */
+    color: #f8f9fa; /* teks terang */
+}
+</style>
+@endpush

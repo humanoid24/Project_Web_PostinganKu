@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LaporanKomentar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class AdminReportCommentController extends Controller
 {
@@ -34,13 +35,15 @@ class AdminReportCommentController extends Controller
             $report->status = $status;
             $report->save();
 
-            return redirect()->back()->with('success', 'Komentar berhasil dihapus karena laporan diterima');
+            Session::flash('message', 'Komentar berhasil dihapus karena laporan diterima');
+            return redirect()->back();
         }
 
         // Kalau statusnya 'pending' atau 'ditolak', cukup update status
         $report->status = $status;
         $report->save();
 
+        Session::flash('message', 'Status laporan berhasil diubah');
         return redirect()->back()->with('success', 'Status laporan berhasil diubah');
     }
 }

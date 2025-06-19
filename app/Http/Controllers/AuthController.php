@@ -49,7 +49,7 @@ class AuthController extends Controller
         if (Auth::Attempt($data)) {
             return redirect()->route('bloggers.index');
         } else {
-            Session::flash('error', 'Email atau Password Salah');
+            Session::flash('error', 'Username atau Password Salah');
             return redirect('/');
         }
     }

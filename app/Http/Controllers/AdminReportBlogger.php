@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LaporanBlogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class AdminReportBlogger extends Controller
 {
@@ -30,12 +31,14 @@ class AdminReportBlogger extends Controller
             $report->status = $status;
             $report->save();
 
-            return redirect()->back()->with('success', 'Postingan berhasil dihapus karena laporan diterima');
+            Session::flash('message', 'Postingan berhasil dihapus karena laporan diterima');
+            return redirect()->back();
         }
 
         $report->status = $status;
         $report->save();
 
-        return redirect()->back()->with('success', 'Status laporan berhasil diubah');
+        Session::flash('message', 'Status laporan berhasil diubah');
+        return redirect()->back();
     }
 }

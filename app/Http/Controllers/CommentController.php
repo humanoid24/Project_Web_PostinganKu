@@ -8,6 +8,7 @@ use App\Models\LaporanKomentar;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class CommentController extends Controller
 {
@@ -45,7 +46,8 @@ class CommentController extends Controller
             'isi' => $validate['isi'],
         ]);
 
-        return redirect()->route('bloggers.show', $blogger->id)->with('success', 'Komentar berhasil ditambahkan!');
+        Session::flash('message', 'Komentar berhasil ditambahkan!');
+        return redirect()->route('bloggers.show', $blogger->id);
     }
 
     /**
@@ -86,8 +88,8 @@ class CommentController extends Controller
             'isi' => $validate['isi'],
         ]);
 
-        return redirect()->route('bloggers.show', $komentar->blogger_id)
-            ->with('success', 'Komentar berhasil diperbarui!');
+        Session::flash('message', 'Komentar berhasil diperbaharui');
+        return redirect()->route('bloggers.show', $komentar->blogger_id);
     }
 
     /**
@@ -107,8 +109,9 @@ class CommentController extends Controller
 
         $komentar->delete();
 
-        return redirect()->route('bloggers.show', $komentarId)
-            ->with('success', 'Komentar berhasil dihapus!');
+        Session::flash('message', 'Komentar berhasil dihapus');
+
+        return redirect()->route('bloggers.show', $komentarId);
     }
 
 
@@ -121,7 +124,8 @@ class CommentController extends Controller
         $komentar = Comment::findOrFail($id);
 
         if (Auth::id() === $komentar->user_id) {
-            return back()->with('error', 'Tidak bisa melaporkan komentar sendiri.');
+            Session::flash('error', 'Tidak bisa melaporkan komentar sendiri.');
+            return back();
         }
 
         $sudahLapor = LaporanKomentar::where('comment_id', $id)
@@ -129,7 +133,8 @@ class CommentController extends Controller
             ->exists();
 
         if ($sudahLapor) {
-            return back()->with('warning', 'Kamu sudah pernah melaporkan komentar ini.');
+            Session::flash('error', 'Kamu sudah pernah melaporkan komentar ini.');
+            return back();
         }
 
         LaporanKomentar::create([
@@ -139,6 +144,7 @@ class CommentController extends Controller
             'alasan' => $request->alasan,
         ]);
 
-        return back()->with('success', 'Komentar berhasil dilaporkan.');
+        Session::flash('error', 'Komentar Berhasil Direport');
+        return back();
     }
 }

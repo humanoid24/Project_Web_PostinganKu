@@ -1,7 +1,7 @@
 <div>
     <div class="dropdown">
         <a href="#" class="text-decoration-none position-relative" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-envelope-fill fs-5 text-primary"></i>
+            <i class="bi bi-bell fs-5 text-primary"></i>
 
             @if($unreadCount > 0)
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -53,4 +53,3 @@
 @endif
 
 </div>
-

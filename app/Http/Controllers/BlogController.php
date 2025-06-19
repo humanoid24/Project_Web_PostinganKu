@@ -6,7 +6,10 @@ use App\Models\Blogger;
 use App\Models\LaporanBlogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Validator;
 
 class BlogController extends Controller
 {
@@ -32,28 +35,38 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
-            'judul' => 'required|string|max:30',
-            'isi' => 'required|string',
-            'media' => 'nullable|file|mimes:jpg,jpeg,png,mp4,webm|max:51200',
-        ]);
+        try {
+            $validate = $request->validate([
+                'judul' => 'required|string|max:30',
+                'isi' => 'required|string',
+                'media' => 'nullable|file|mimes:jpg,jpeg,png,mp4,webm|max:51200',
+            ]);
 
-        // video atau foto
-        $mediaPath = null;
+            // video atau foto
+            $mediaPath = null;
 
-        if ($request->hasFile('media')) {
-            $mediaPath = $request->file('media')->store('media', 'public');
+            if ($request->hasFile('media')) {
+                $mediaPath = $request->file('media')->store('media', 'public');
+            }
+
+
+            // Buat ke dalam database
+            Blogger::create([
+                'user_id' => Auth::id(),
+                'judul' => $validate['judul'],
+                'isi_konten' => $validate['isi'],
+                'media' => $mediaPath,
+            ]);
+            Session::flash('message', 'Status berhasil diposting');
+            return redirect()->route('bloggers.index');
+        } catch (ValidationException $e) {
+            if ($e->validator->errors()->has('media')) {
+                Session::flash('error', 'Media gagal diupload. Ukuran file maksimal 50 MB dan format harus jpg, jpeg, png, mp4, atau webm.');
+            } else {
+                Session::flash('error', 'Gagal memposting status. Periksa kembali isian form.');
+            }
+            return redirect()->back()->withErrors($e->validator)->withInput();
         }
-
-
-        // Buat ke dalam database
-        Blogger::create([
-            'user_id' => Auth::id(),
-            'judul' => $validate['judul'],
-            'isi_konten' => $validate['isi'],
-            'media' => $mediaPath,
-        ]);
-        return redirect()->route('bloggers.index')->with('success', 'Thread berhasil diposting!');
     }
 
     /**
@@ -78,28 +91,41 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blogger $blogger)
     {
-        $validate = $request->validate([
-            'judul' => 'required|string',
-            'isi' => 'required|string',
-            'media' => 'nullable|file|mimes:jpg,jpeg,png,mp4,webm|max:51200',
-        ]);
+        try {
+            $validate = $request->validate([
+                'judul' => 'required|string',
+                'isi' => 'required|string',
+                'media' => 'nullable|file|mimes:jpg,jpeg,png,mp4,webm|max:51200',
+            ]);
 
-        // video atau foto
-        $mediaPath = $blogger->media;
+            // video atau foto
+            $mediaPath = $blogger->media;
 
-        if ($request->hasFile('media')) {
-            if ($blogger->media) {
-                Storage::disk('public')->delete($blogger->media);
+            if ($request->hasFile('media')) {
+                if ($blogger->media) {
+                    Storage::disk('public')->delete($blogger->media);
+                }
+                $mediaPath = $request->file('media')->store('media', 'public');
             }
-            $mediaPath = $request->file('media')->store('media', 'public');
-        }
 
-        $blogger->update([
-            'judul' => $validate['judul'],
-            'isi_konten' => $validate['isi'],
-            'media' => $mediaPath,
-        ]);
-        return redirect()->route('bloggers.show', $blogger)->with('success', 'Postingan berhasil diedit!');
+            $blogger->update([
+                'judul' => $validate['judul'],
+                'isi_konten' => $validate['isi'],
+                'media' => $mediaPath,
+            ]);
+            
+            Session::flash('message', 'Status berhasil diedit');
+            return redirect()->route('bloggers.show', $blogger);
+            
+        } catch (ValidationException $e) {
+
+            if ($e->validator->errors()->has('media')) {
+                Session::flash('error', 'Media gagal diupload. Ukuran file maksimal 50 MB dan format harus jpg, jpeg, png, mp4, atau webm.');
+            } else {
+                Session::flash('error', 'Gagal mengedit status. Periksa kembali isian form.');
+            }
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        }
     }
 
     /**
@@ -108,7 +134,8 @@ class BlogController extends Controller
     public function destroy(Blogger $blogger)
     {
         $blogger->delete();
-        return redirect()->route('bloggers.index', $blogger)->with('success', 'Postingan berhasil dihapus!');
+        Session::flash('message', 'Status berhasil dihapus');
+        return redirect()->route('bloggers.index', $blogger);
     }
 
     public function userPosts($userId)
@@ -138,7 +165,8 @@ class BlogController extends Controller
             ->exists();
 
         if ($sudahLapor) {
-            return back()->with('warning', 'Kamu sudah pernah melaporkan blogger ini.');
+            Session::flash('error', 'Kamu sudah pernah melaporkan blogger ini.');
+            return back();
         }
 
         LaporanBlogger::create([
@@ -148,6 +176,7 @@ class BlogController extends Controller
             'alasan' => $request->alasan,
         ]);
 
-        return back()->with('success', 'Komentar berhasil dilaporkan.');
+        Session::flash('message', 'Status berhasil dilaporkan');
+        return back();
     }
 }

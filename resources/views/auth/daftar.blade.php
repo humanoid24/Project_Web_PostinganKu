@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<section class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1d3557, #457b9d);">
+<section class="vh-100 d-flex align-items-center justify-content-center" style="background: blue;">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6 col-xl-5">
@@ -54,7 +54,7 @@
                 <label for="password_confirmation"><i class="bi bi-shield-lock-fill me-2"></i>Konfirmasi Password</label>
               </div>
 
-              <button class="btn btn-success btn-lg w-100" type="submit">
+              <button class="btn btn-primary btn-lg w-100" type="submit">
                 <i class="bi bi-person-check-fill me-1"></i>Register
               </button>
             </form>

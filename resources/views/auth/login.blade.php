@@ -10,7 +10,7 @@
 </head>
 <body class="bg-light">
 
-<section class="vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+<section class="vh-100 d-flex align-items-center justify-content-center" style="background: blue">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-5">
